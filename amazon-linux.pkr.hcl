@@ -1,5 +1,3 @@
-variable "ssh_public_key" {}
-
 packer {
   required_plugins {
     amazon = {
@@ -15,13 +13,6 @@ source "amazon-ebs" "amazon_linux" {
   region        = "us-east-1"
   source_ami    = "ami-08b5b3a93ed654d19"
   ssh_username  = "ec2-user"
-
-  user_data = <<EOF
-#!/bin/bash
-echo "${var.ssh_public_key}" >> /home/ec2-user/.ssh/authorized_keys
-chmod 600 /home/ec2-user/.ssh/authorized_keys
-chown ec2-user:ec2-user /home/ec2-user/.ssh/authorized_keys
-EOF
 }
 
 build {
