@@ -114,15 +114,19 @@ Ensure you have the following installed:
 ### Output
 After deployment, Terraform provides:
 - **VPC ID**
+  
     <img width="720" alt="vpc" src="https://github.com/user-attachments/assets/e76cbd69-b15d-4251-897c-320d56bbb81c" />
 
 - **Public Subnets & Private Subnets IDs**
+  
     <img width="720" alt="subnet" src="https://github.com/user-attachments/assets/a8510c88-46b7-45eb-917b-ab7604427995" />
 
 - **Bastion Host Public IP**
+  
     <img width="720" alt="bastain host" src="https://github.com/user-attachments/assets/950c7ac0-5c2a-4aab-a06f-cba083ca1e2f" />
 
 - **Private EC2 Instance Details**
+  
     <img width="720" alt="priavte ec2s and bastian host" src="https://github.com/user-attachments/assets/e342f584-46d4-485c-92c7-ecdba4e4d6ef" />
 
 ---
@@ -130,7 +134,7 @@ After deployment, Terraform provides:
 ## SSH Access
 - **Bastion Host:** Connect using your SSH key:
   ```sh
-  ssh -A -i <your-bastion-key>.pem ec2-user@<bastion-public-ip>
+  ssh -i <your-bastion-key>.pem ec2-user@<bastion-public-ip>
   ```
 - **Private EC2:** From the Bastion Host, use:
   ```sh
@@ -139,7 +143,7 @@ After deployment, Terraform provides:
 
 ### Output
 
-    <img width="720" alt="ssh" src="https://github.com/user-attachments/assets/b3f8e8cc-212d-44e6-8340-1caca81c140e" />
+   <img width="720" alt="ssh" src="https://github.com/user-attachments/assets/b3f8e8cc-212d-44e6-8340-1caca81c140e" />
 
 ---
 
