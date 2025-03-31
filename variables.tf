@@ -1,4 +1,4 @@
-variable "bastion_allowed_ip" {
+variable "ansible_ingress_ip" {
     type        = string
     description = "Specify your public IP for SSH access."
 }
@@ -8,12 +8,7 @@ variable "vpc_public_subnet" {
     description = "CIDR block of the public subnet."
 }
 
-variable "custom_image_id" {
-    type        = string
-    description = "Custom AMI for private instances."
-}
-
-variable "bastion_key_pair" {
+variable "ansible_key_pair" {
     type        = string
     description = "SSH key for Bastion Host."
 }
