@@ -6,7 +6,7 @@ resource "aws_security_group" "private_host_sg" {
     protocol        = "tcp"
     from_port       = 22
     to_port         = 22
-    security_groups = [aws_security_group.bastion_sg.id] # Allow SSH from Bastion
+    security_groups = [aws_security_group.ansible_sg.id] # Allow SSH from Ansible control node
   }
 
   egress {
@@ -17,15 +17,29 @@ resource "aws_security_group" "private_host_sg" {
   }
 }
 
-resource "aws_instance" "private_hosts" {
-  count                       = 6
-  ami                         = var.custom_image_id
+resource "aws_instance" "private_ubuntu_instances" {
+  count                       = 3
+  ami                         = "ami-084568db4383264d4"
   key_name                    = var.private_instance_key
   instance_type               = "t2.micro"
   subnet_id                   = module.vpc.private_subnets[0]
   vpc_security_group_ids      = [aws_security_group.private_host_sg.id]
 
   tags = {
-    Name = "private-node-${count.index + 1}"
+    Name = "private-ubuntu-node-${count.index + 1}"
+    OS   = "ubuntu"
   }
+}
+
+resource "aws_instance" "private_amazon_linux_instances" {
+  count                  = 3
+  ami                    = "ami-0ea554099279c88d1"
+  key_name               = var.private_instance_key
+  instance_type          = "t2.micro"
+  subnet_id              = module.vpc.private_subnets[0]
+  vpc_security_group_ids = [aws_security_group.private_host_sg.id]
+
+  tags = {
+    Name = "private-amazon-linux-node-${count.index + 1}"
+    OS   = "amazon-linux"}
 }
