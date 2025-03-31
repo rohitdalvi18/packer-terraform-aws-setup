@@ -126,7 +126,7 @@ Ensure you have the following installed:
    This will run the playbook using the provided configuration.
    
    <img width="720" alt="a1" src="https://github.com/user-attachments/assets/a1da3caf-8249-46ed-924f-5d93b6d0cd74" />
-   <img width="720" alt="a2" src="https://github.com/user-attachments/assets/448bb3f0-54e1-49c5-b8d9-713e8d64e2f7" />
+   <img width="720" alt="a2" src="https://github.com/user-attachments/assets/409174ab-7b70-4c62-a848-0a2e8e54f4f2" />
    <img width="720" alt="a3" src="https://github.com/user-attachments/assets/23348e71-8dd3-417e-b44d-1a49a96d305b" />
    <img width="720" alt="a4" src="https://github.com/user-attachments/assets/8349bcbe-81e7-476a-aa6c-ae0cd719680d" />
 
@@ -135,6 +135,8 @@ Ensure you have the following installed:
    sudo systemctl status docker
    docker --version
    ```
+   <img width="720" alt="docker" src="https://github.com/user-attachments/assets/05d093f1-28ee-4ea2-9879-79ca622139b4" />
+
 
 ---
 
