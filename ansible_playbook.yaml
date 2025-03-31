@@ -1,0 +1,56 @@
+- name: Ubuntu System Maintenance
+  hosts: ubuntu
+  gather_facts: yes
+  become: yes
+  
+  tasks:
+    - name: Update and upgrade package cache
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: latest
+
+    - name: Enable and start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+- name: Amazon Linux System Maintenance
+  hosts: amazon_linux
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Update and upgrade all packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: latest
+
+    - name: Enable and start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+- name: System Disk Usage Check
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Retrieve disk usage details
+      command: df -h
+      register: disk_usage
+
+    - name: Display disk usage report
+      debug:
+        msg: "{{ disk_usage.stdout_lines }}"
