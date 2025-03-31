@@ -37,71 +37,127 @@
 ## Prerequisites
 Ensure you have the following installed:
 - **[Terraform](https://developer.hashicorp.com/terraform/downloads)** (>= 1.3.0)
-- **AWS CLI** (configured with appropriate credentials)
-- **SSH Key Pair** for **[Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) Controller** and private EC2 instances
+- **[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)** (configured with appropriate credentials)
+- **SSH Key Pair** for **[Ansible](https://docs.ansible.com/) Controller** and private EC2 instances
 
 ---
 
 ## Deploy Infrastructure with Terraform
 
-1. Navigate to the **Terraform** directory:
+1. After cloning the repo navigate to the project directory and switch branch:
    ```sh
-   cd terraform/
+   cd packer-terraform-aws-setup
+   git branch -v -a
+   git switch ansible
    ```
 2. Create a new file  `terraform.tfvars`  with below secrets:
    ```sh
-    bastion_allowed_ip = "YOUR_IP/32"
+    ansible_ingress_ip = "YOUR_IP/32"
     vpc_public_subnet           = "VPC_ID"
-    custom_image_id             = "YOUR_CUSTOM_AMI_ID"
-    bastion_key_pair            = "vockey_OR_deafult_SSH_KEY"
+    ansible_key_pair            = "vockey_OR_deafult_SSH_KEY"
     private_instance_key        = "vockey_OR_PRIVATE_EC2_KEY" 
    ```
 3. Initialize Terraform:
    ```sh
    terraform init
    ```
+   <img width="608" alt="tf init" src="https://github.com/user-attachments/assets/1bcc8bff-4e53-4c42-a78f-a0f1e0ea4ab4" />
+
 4. Validate the Terraform configuration:
    ```sh
    terraform validate
    ```
+   <img width="547" alt="validate" src="https://github.com/user-attachments/assets/9b9cd976-4242-4770-bff7-ca0db47ae22a" />
+
 5. Apply the changes to provision resources:
    ```sh
    terraform apply -var-file=terraform.tfvars
    ```
+   <img width="720" alt="apply" src="https://github.com/user-attachments/assets/881ccf8e-08d5-4185-86de-63bc25cc17ab" />
 
-### Output
-After deployment, Terraform provides:
-- **VPC ID**
-  
-    <img width="720" alt="vpc" src="https://github.com/user-attachments/assets/e76cbd69-b15d-4251-897c-320d56bbb81c" />
+### This will provision the AWS infrastructure
 
-- **Public Subnets & Private Subnets IDs**
-  
-    <img width="720" alt="subnet" src="https://github.com/user-attachments/assets/a8510c88-46b7-45eb-917b-ab7604427995" />
+   <img width="720" alt="infra" src="https://github.com/user-attachments/assets/8d29fbaa-db4a-4811-9914-51629e183adf" />
 
-- **Bastion Host Public IP**
-  
-    <img width="720" alt="bastain host" src="https://github.com/user-attachments/assets/950c7ac0-5c2a-4aab-a06f-cba083ca1e2f" />
-
-- **Private EC2 Instance Details**
-  
-    <img width="720" alt="priavte ec2s and bastian host" src="https://github.com/user-attachments/assets/e342f584-46d4-485c-92c7-ecdba4e4d6ef" />
 
 ---
 
-## SSH Access
-- **Bastion Host:** Connect using your SSH key:
-  ```sh
-  ssh -i <your-bastion-key>.pem ec2-user@<bastion-public-ip>
-  ```
-- **Private EC2:** From the Bastion Host, use:
-  ```sh
-  ssh -i <your-private-key>.pem ec2-user@<private-ec2-ip>
+## Configure and Execute Ansible
+
+1. Run the following command to securely copy the Ansible playbook and dynamic inventory files to the home directory on the Ansible controller EC2 instance:
+   ```sh
+   scp ansible_playbook.yaml aws_ec2.yaml ec2-user@<your_ansible_controller_ip>:~
+   ```
+   <img width="720" alt="scp" src="https://github.com/user-attachments/assets/089a413d-ec2d-47c1-861d-c68162a02dbf" />
+
+2. SSH into the Ansible Controller
+
+- Set the appropriate permissions for your PEM file:
+  ```bash
+  chmod 600 <PEM_FILE>
   ```
 
-### Output
+- Add the PEM file to your SSH agent:
+  ```bash
+  ssh-add <PEM_FILE>
+  ```
 
-   <img width="720" alt="ssh" src="https://github.com/user-attachments/assets/b3f8e8cc-212d-44e6-8340-1caca81c140e" />
+- Connect to the Ansible Controller EC2 instance:
+  ```bash
+  ssh -A -i <PEM_FILE> ec2-user@<your_ansible_controller_ip>
+  ```
+
+3. Configure AWS Credentials on the Ansible Controller
+
+- Configure your AWS credentials:
+  ```bash
+  aws configure
+  ```
+
+- Set your session token:
+  ```bash
+  aws configure set aws_session_token <your_aws_session_token>
+  ```
+
+4. Execute the playbook on the Ansible Controller EC2 machine:
+   ```bash
+   ansible-playbook -i aws_ec2.yaml ansible_playbook.yaml -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"'
+   ```
+   This will run the playbook using the provided configuration.
+   
+   <img width="720" alt="a1" src="https://github.com/user-attachments/assets/a1da3caf-8249-46ed-924f-5d93b6d0cd74" />
+   <img width="720" alt="a2" src="https://github.com/user-attachments/assets/448bb3f0-54e1-49c5-b8d9-713e8d64e2f7" />
+   <img width="720" alt="a3" src="https://github.com/user-attachments/assets/23348e71-8dd3-417e-b44d-1a49a96d305b" />
+   <img width="720" alt="a4" src="https://github.com/user-attachments/assets/8349bcbe-81e7-476a-aa6c-ae0cd719680d" />
+
+5. To validate the installation of Docker on each of the private EC2 instances, initiate an SSH session to the respective instance and execute the following command within the terminal:
+   ```bash
+   sudo systemctl status docker
+   docker --version
+   ```
+
+---
+
+
+## **Troubleshooting**
+
+### SSH Access Issues
+
+- Ensure the correct user is used (`ubuntu` for Ubuntu, `ec2-user` for Amazon Linux):
+  ```sh
+  ssh -i labsuser.pem ubuntu@<instance-ip>
+  ```
+- If permission is denied, verify that `labsuser.pem` has the correct permissions:
+  ```sh
+  chmod 600 labsuser.pem
+  ```
+
+### Ansible Connection Errors
+
+If hosts are unreachable, check the inventory configuration in `aws_ec2.yaml` and confirm instances are accessible.
+  ```bash
+  aws configure set aws_session_token <your_aws_session_token>
+  ```
 
 ---
 
@@ -114,5 +170,7 @@ terraform destroy
 
 ## Conclusion
 
-This demonstrates the automated provisioning of AWS infrastructure using Packer for creating a custom AMI and Terraform for deploying a secure, scalable architecture. By integrating a bastion host, private EC2 instances, and modular Terraform configurations, the setup ensures a structured and efficient deployment process. With this approach, infrastructure can be easily managed, replicated, and scaled while maintaining security best practices. 🚀
+This project successfully provisions and configures a set of EC2 instances using Terraform and Ansible, streamlining the deployment of Ubuntu and Amazon Linux environments. By automating system updates, Docker installation, and disk usage monitoring, the setup ensures that all instances are consistently maintained and ready for deployment.  
+
+Through dynamic inventory management with `aws_ec2.yaml`, Ansible can efficiently target instances based on their OS, reducing manual effort. The modular approach allows for easy scaling and modifications in the future.  
 
